@@ -1,0 +1,53 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isOwnerOrManager() {
+      return isLoggedIn() && userRole() in ["owner", "manager"];
+    }
+
+    // ── users ─────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any logged-in user can read their own doc
+      allow get:    if isLoggedIn() && request.auth.uid == userId;
+      // Owner/Manager can read ANY single doc OR list the whole collection
+      allow get:    if isOwnerOrManager();
+      allow list:   if isOwnerOrManager();
+      // Anyone logged in can create (registration + Add User flow)
+      allow create: if isLoggedIn();
+      // Own profile (no role self-promotion) OR owner/manager can change role
+      allow update: if isLoggedIn() && (
+                      (request.auth.uid == userId &&
+                       !("role" in request.resource.data.diff(resource.data).affectedKeys()))
+                      || isOwnerOrManager()
+                    );
+      allow delete: if isOwnerOrManager();
+    }
+
+    // ── menuItems ─────────────────────────────────────────────────────────────
+    match /menuItems/{itemId} {
+      allow read:   if true;
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isLoggedIn();
+    }
+
+    // ── orders ────────────────────────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read:   if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if false;
+    }
+
+  }
+}
