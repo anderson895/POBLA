@@ -15,6 +15,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { AppRole } from "@/lib/authService";
@@ -481,8 +482,33 @@ function MenuManagement() {
 // ─── Reports ──────────────────────────────────────────────────────────────────
 
 function Reports() {
-  const { state } = useApp();
-  const orders = state.orders;
+  const [orders, setOrders] = useState<import("@/types").Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, "orders"),
+      (snap) => {
+        const list = snap.docs.map((d) => {
+          const data = d.data();
+          return {
+            ...(data as Omit<import("@/types").Order, "id" | "createdAt" | "updatedAt">),
+            id: d.id,
+            createdAt: data.createdAt?.toDate?.() ?? new Date(),
+            updatedAt: data.updatedAt?.toDate?.() ?? new Date(),
+          } as import("@/types").Order;
+        });
+        list.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        setOrders(list);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("[Reports] fetch error:", err);
+        setLoading(false);
+      }
+    );
+    return unsub;
+  }, []);
 
   const stats = useMemo(() => {
     const revenue = orders
@@ -509,6 +535,16 @@ function Reports() {
     });
     return { total: orders.length, revenue, delivered, avg, topItems, byStatus };
   }, [orders]);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[1,2,3,4].map(n => (
+          <div key={n} className="rounded-2xl border border-border p-4 h-24 animate-pulse bg-muted/30" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -969,7 +1005,8 @@ function UserManagement() {
       list.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
       setUsers(list);
     } catch (e) {
-      showToast("Failed to load users.", false);
+      console.error("[UserManagement] fetchUsers error:", e);
+      showToast("Failed to load users. Check Firestore rules.", false);
     } finally {
       setLoading(false);
     }
