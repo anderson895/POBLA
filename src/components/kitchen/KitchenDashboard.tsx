@@ -4,7 +4,7 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircleIcon, ClockIcon, BellAlertIcon } from "@heroicons/react/24/outline";
+import { CheckCircleIcon, ClockIcon, BellAlertIcon, SparklesIcon } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
 import {
   collection,
@@ -84,7 +84,7 @@ function OrderCard({ order, onStatus }: { order: Order; onStatus: (id: string, s
         {isPrep  && <Button variant="default" className="w-full" size="sm" onClick={() => onStatus(order.id, "ready")}><CheckCircleIcon className="w-3.5 h-3.5" />Mark Ready</Button>}
         {isReady && (
           <div className="w-full py-2 rounded-xl text-sm font-semibold text-center bg-green-50 text-green-700 border border-green-200">
-            ✅ Ready for {order.orderType === "delivery" ? "Rider Pickup" : "Customer"}
+            Ready for {order.orderType === "delivery" ? "Rider Pickup" : "Customer"}
           </div>
         )}
       </CardContent>
@@ -155,9 +155,9 @@ export default function KitchenDashboard() {
   }
 
   const STATS = [
-    { key: "confirmed" as const, label: "New Orders", emoji: "🔔", cls: "bg-yellow-50 border-yellow-200 text-yellow-700" },
-    { key: "preparing" as const, label: "Cooking",    emoji: "🔥", cls: "bg-brand/5 border-brand/20 text-brand" },
-    { key: "ready"     as const, label: "Ready",      emoji: "✅", cls: "bg-green-50 border-green-200 text-green-700" },
+    { key: "confirmed" as const, label: "New Orders", icon: <BellAlertIcon className="w-6 h-6" />, cls: "bg-yellow-50 border-yellow-200 text-yellow-700" },
+    { key: "preparing" as const, label: "Cooking",    icon: <FireIcon      className="w-6 h-6" />, cls: "bg-brand/5 border-brand/20 text-brand" },
+    { key: "ready"     as const, label: "Ready",      icon: <CheckCircleIcon className="w-6 h-6" />, cls: "bg-green-50 border-green-200 text-green-700" },
   ];
 
   return (
@@ -172,7 +172,7 @@ export default function KitchenDashboard() {
         {STATS.map(s => (
           <button key={s.key} onClick={() => setFilter(filter === s.key ? "all" : s.key)}
             className={cn("p-4 rounded-2xl border-2 text-center transition-all hover:shadow-sm", s.cls, filter === s.key && "ring-2 ring-offset-1 ring-current/30 shadow-sm")}>
-            <div className="text-2xl mb-1">{s.emoji}</div>
+            <div className="mb-1">{s.icon}</div>
             <div className="font-display font-black text-2xl">{counts[s.key]}</div>
             <div className="text-xs font-semibold">{s.label}</div>
           </button>
@@ -187,7 +187,7 @@ export default function KitchenDashboard() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-6xl mb-4">🍳</p>
+          <SparklesIcon className="w-16 h-16 text-muted mx-auto mb-4" />
           <h3 className="font-display font-bold text-xl text-foreground mb-2">
             {orders.length === 0 ? "No active orders" : "No orders in this status"}
           </h3>

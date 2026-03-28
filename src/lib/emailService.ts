@@ -58,7 +58,7 @@ function baseTemplate(title: string, body: string): string {
         <!-- Footer -->
         <tr>
           <td style="background:#f5f0ef;padding:20px 32px;text-align:center;">
-            <p style="margin:0;font-size:11px;color:#9c8f8e;">© 2025 Poblacion Pares Atbp. • Authentic Filipino Cuisine</p>
+            <p style="margin:0;font-size:11px;color:#9c8f8e;">© 2025 Pobla Order Hub • Authentic Filipino Cuisine</p>
           </td>
         </tr>
 
@@ -99,7 +99,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
 export async function sendOrderConfirmation(order: Order, customerEmail: string): Promise<void> {
   const body = `
     <p style="margin:0 0 6px;font-size:14px;color:#6b5f5e;">Hi <strong>${order.customerName}</strong>,</p>
-    <p style="margin:0 0 20px;font-size:14px;color:#6b5f5e;">Natanggap na namin ang iyong order. Ihahanda na namin ito agad!</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b5f5e;">We received your order and are preparing it now!</p>
 
     <!-- Order info -->
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f9f5f4;border-radius:10px;padding:16px;">
@@ -137,7 +137,7 @@ export async function sendOrderConfirmation(order: Order, customerEmail: string)
       </tr>
     </table>
 
-    <p style="margin:0;font-size:13px;color:#9c8f8e;">Salamat sa iyong order! Abangan ang aming mensahe kapag handa na. 🍲</p>
+    <p style="margin:0;font-size:13px;color:#9c8f8e;">Thank you for your order! We'll notify you when it's ready.</p>
   `;
 
   await sendEmail(
@@ -154,8 +154,8 @@ export async function sendOrderReadyNotification(order: Order, customerEmail: st
     <p style="margin:0 0 6px;font-size:14px;color:#6b5f5e;">Hi <strong>${order.customerName}</strong>,</p>
     <p style="margin:0 0 20px;font-size:14px;color:#6b5f5e;">
       ${isDelivery
-        ? "Handa na ang iyong order at ipapaabot na ng aming rider!"
-        : "Handa na ang iyong order! Pwede ka nang pumunta para i-pick up."}
+        ? "Your order is ready and our rider is on the way!"
+        : "Your order is ready for pickup!"}
     </p>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;background:#f0faf4;border-radius:10px;padding:16px;border:1px solid #bbf7d0;">
@@ -177,8 +177,8 @@ export async function sendOrderReadyNotification(order: Order, customerEmail: st
 
     <p style="margin:0;font-size:13px;color:#9c8f8e;">
       ${isDelivery
-        ? "Ihanda na ang iyong bayad na <strong>" + formatCurrency(order.total) + "</strong>. Cash on Delivery."
-        : "Dalhin ang order number mo kapag pumunta ka. Salamat! 🙏"}
+        ? "Please prepare <strong>" + formatCurrency(order.total) + "</strong> for Cash on Delivery."
+        : "Please bring your order number when you come. Thank you!"}
     </p>
   `;
 

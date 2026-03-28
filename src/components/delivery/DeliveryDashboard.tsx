@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MapPinIcon, PhoneIcon, CheckCircleIcon, TruckIcon, BanknotesIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon, PhoneIcon, CheckCircleIcon, TruckIcon, BanknotesIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
 import {
   collection,
   query,
@@ -118,8 +118,8 @@ function DeliveryCard({ order, riderId, riderName, onAccept, onDeliver }: {
           </Button>
         )}
         {isDone && (
-          <div className="w-full py-2 rounded-xl text-sm font-semibold text-center bg-green-50 text-green-700 border border-green-200">
-            ✅ Delivered
+          <div className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold bg-green-50 text-green-700 border border-green-200">
+            <CheckBadgeIcon className="w-4 h-4" /> Delivered
           </div>
         )}
       </CardContent>
@@ -206,9 +206,9 @@ export default function DeliveryDashboard() {
   }
 
   const TABS = [
-    { key: "available", label: "Available",     list: avail, badge: avail.length, empty: "Wala pang available na delivery. Lalabas dito kapag nag-mark ng Ready ang kitchen." },
-    { key: "mine",      label: "My Deliveries", list: mine,  badge: mine.length,  empty: "Wala kang active na delivery. Kumuha mula sa Available tab." },
-    { key: "done",      label: "Completed",     list: done,  badge: 0,            empty: "Wala pang completed na delivery ngayon." },
+    { key: "available", label: "Available",     list: avail, badge: avail.length, empty: "No available deliveries. Orders appear here when the kitchen marks them ready." },
+    { key: "mine",      label: "My Deliveries", list: mine,  badge: mine.length,  empty: "No active deliveries. Accept one from the Available tab." },
+    { key: "done",      label: "Completed",     list: done,  badge: 0,            empty: "No completed deliveries yet." },
   ];
 
   return (
@@ -217,7 +217,7 @@ export default function DeliveryDashboard() {
       <div className="mb-6">
         <h2 className="font-display font-bold text-xl text-foreground">Delivery Dashboard</h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Hello, <strong>{riderName}</strong>! Manage your deliveries below.
+          Hello, <strong>{riderName}</strong>! Here are your deliveries.
         </p>
       </div>
 

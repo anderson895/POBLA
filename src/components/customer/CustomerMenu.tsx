@@ -338,7 +338,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
           {menuError && (
             <div className="flex items-center gap-3 p-4 bg-destructive/5 border border-destructive/20 rounded-2xl text-sm text-destructive">
               <ExclamationTriangleIcon className="w-5 h-5 shrink-0" />
-              Hindi ma-load ang menu: {menuError}
+              Failed to load menu: {menuError}
             </div>
           )}
 
@@ -387,11 +387,11 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
             <div className="text-center py-16">
               <MagnifyingGlassIcon className="w-12 h-12 text-muted mx-auto mb-3" />
               <h3 className="font-display font-bold text-foreground">
-                {menuItems.length === 0 ? "Walang menu items pa" : "No items found"}
+                {menuItems.length === 0 ? "No menu items yet" : "No items found"}
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
                 {menuItems.length === 0
-                  ? "Mag-add ng items sa Owner Dashboard"
+                  ? "Add items from the Owner Dashboard"
                   : "Try a different search or category"}
               </p>
             </div>

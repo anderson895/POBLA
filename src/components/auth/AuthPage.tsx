@@ -71,15 +71,15 @@ function TextInput({
 
 function FirebaseErrorMsg(code: string): string {
   const map: Record<string, string> = {
-    "auth/user-not-found":       "Hindi nahanap ang account. Mag-sign up muna.",
-    "auth/wrong-password":       "Mali ang password. Subukan ulit.",
-    "auth/invalid-credential":   "Mali ang email o password.",
-    "auth/email-already-in-use": "May account na ang email na ito. Mag-login na lang.",
-    "auth/weak-password":        "Password ay masyadong mahina. Gumamit ng 6+ characters.",
-    "auth/invalid-email":        "Hindi valid ang email address.",
-    "auth/too-many-requests":    "Maraming beses na sinubukan. Maghintay muna.",
+    "auth/user-not-found":       "Account not found. Please sign up first.",
+    "auth/wrong-password":       "Incorrect password. Please try again.",
+    "auth/invalid-credential":   "Invalid email or password.",
+    "auth/email-already-in-use": "Email already in use. Please log in instead.",
+    "auth/weak-password":        "Password is too weak. Use at least 6 characters.",
+    "auth/invalid-email":        "Invalid email address.",
+    "auth/too-many-requests":    "Too many attempts. Please wait a moment.",
   };
-  return map[code] ?? "May nangyaring error. Subukan ulit.";
+  return map[code] ?? "Something went wrong. Please try again.";
 }
 
 export default function AuthPage() {
@@ -95,7 +95,7 @@ export default function AuthPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) return setError("Punan ang lahat ng fields.");
+    if (!email || !password) return setError("Please fill in all fields.");
     setLoading(true); setError(null);
     try {
       await login(email, password);
@@ -109,9 +109,9 @@ export default function AuthPage() {
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !email || !password || !confirm) return setError("Punan ang lahat ng fields.");
-    if (password !== confirm) return setError("Hindi magkapareho ang passwords.");
-    if (password.length < 6) return setError("Password ay dapat 6 characters o higit pa.");
+    if (!name || !email || !password || !confirm) return setError("Please fill in all fields.");
+    if (password !== confirm) return setError("Passwords do not match.");
+    if (password.length < 6) return setError("Password must be at least 6 characters.");
     setLoading(true); setError(null);
     try {
       await register(name.trim(), email, password);
@@ -153,7 +153,7 @@ export default function AuthPage() {
           <p className="text-xs font-bold tracking-widest mt-0.5" style={{ color: "#bc5d5d" }}>
             ORDER HUB
           </p>
-          <p className="text-xs text-white/40 mt-2">Authentic Filipino cuisine • Pares Atbp.</p>
+          <p className="text-xs text-white/40 mt-2">Authentic Filipino Cuisine</p>
         </div>
 
         {/* Tabs */}

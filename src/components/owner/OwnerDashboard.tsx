@@ -109,7 +109,7 @@ function MenuManagement() {
 
   async function handleSave() {
     if (!editItem?.name?.trim() || !editItem.price) {
-      setSaveError("Punan ang pangalan at presyo.");
+      setSaveError("Please fill in the name and price.");
       return;
     }
 
@@ -138,7 +138,7 @@ function MenuManagement() {
       }
       setDialogOpen(false);
     } catch (err) {
-      setSaveError((err as Error).message || "Hindi na-save. Subukan ulit.");
+      setSaveError((err as Error).message || "Failed to save. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -153,11 +153,11 @@ function MenuManagement() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this menu item? Hindi na mababalik.")) return;
+    if (!confirm("Delete this menu item? This cannot be undone.")) return;
     try {
       await deleteMenuItem(id);
     } catch (err) {
-      alert("Hindi na-delete: " + (err as Error).message);
+      alert("Failed to delete: " + (err as Error).message);
     }
   }
 
@@ -234,7 +234,7 @@ function MenuManagement() {
               {!state.menuLoading && filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
-                    Walang items. Mag-add ng menu item.
+                    No items yet. Add a menu item to get started.
                   </td>
                 </tr>
               )}
@@ -756,10 +756,10 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
 
   async function handleSubmit() {
     if (!name.trim() || !email.trim() || !password) {
-      return setError("Punan ang lahat ng fields.");
+      return setError("Please fill in all fields.");
     }
     if (password.length < 6) {
-      return setError("Password ay dapat 6 characters o higit pa.");
+      return setError("Password must be at least 6 characters.");
     }
     setSaving(true); setError(null);
     try {
@@ -789,11 +789,11 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
       const map: Record<string, string> = {
-        "auth/email-already-in-use": "May account na ang email na ito.",
-        "auth/invalid-email":        "Hindi valid ang email address.",
-        "auth/weak-password":        "Password ay masyadong mahina.",
+        "auth/email-already-in-use": "Email already in use.",
+        "auth/invalid-email":        "Invalid email address.",
+        "auth/weak-password":        "Password is too weak.",
       };
-      setError(map[code] ?? "May nangyaring error. Subukan ulit.");
+      setError(map[code] ?? "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }

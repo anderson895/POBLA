@@ -263,7 +263,7 @@ export default function CartSidebar({ open, onClose }: { open: boolean; onClose:
           {step === "confirm" && (
             <div className="p-4 space-y-4">
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs font-medium text-yellow-700">
-                Review your order before placing it.
+                Please review your order before confirming.
               </div>
               <div className="space-y-2">
                 <Label>Order Items</Label>
