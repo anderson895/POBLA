@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   updateProfile,
-  updateEmail,
+  verifyBeforeUpdateEmail,
   updatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
@@ -203,9 +203,10 @@ function EmailSection() {
     try {
       const cred = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, cred);
-      await updateEmail(user, newEmail.trim());
-      await updateDoc(doc(db, "users", user.uid), { email: newEmail.trim() });
-      showToast("Email updated successfully.");
+      // verifyBeforeUpdateEmail sends a verification link to the new email.
+      // The change only takes effect after the user clicks the link.
+      await verifyBeforeUpdateEmail(user, newEmail.trim());
+      showToast("Verification email sent! Check your new inbox to confirm the change.");
       setNewEmail(""); setPassword("");
     } catch (err) {
       const code = (err as { code?: string }).code ?? "";
@@ -235,7 +236,7 @@ function EmailSection() {
       <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
         <ShieldCheckIcon className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
         <p className="text-xs text-amber-800 leading-relaxed">
-          For security, you must verify your current password before changing your email.
+          A verification link will be sent to your <strong>new email address</strong>. The change only takes effect after you click the link.
         </p>
       </div>
 
