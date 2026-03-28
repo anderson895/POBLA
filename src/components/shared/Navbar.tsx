@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AccountSettings from "@/components/shared/AccountSettings";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/types";
@@ -13,6 +14,7 @@ import {
   ArrowRightStartOnRectangleIcon,
   LockClosedIcon,
   WrenchScrewdriverIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -30,6 +32,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
   const { state, cartItemCount } = useApp();
   const { user, isGuest, logout, exitGuest } = useAuth();
   const [userOpen, setUserOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const roleMeta = ROLE_META[state.currentRole] ?? ROLE_META["customer"];
   const displayName = user?.displayName || user?.email?.split("@")[0] || "User";
@@ -47,6 +50,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
   }
 
   return (
+  <>
     <header
       className="sticky top-0 z-40 border-b border-white/10"
       style={{ background: "#3b3130" }}
@@ -142,6 +146,14 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                       <p className="text-[11px] text-white/40 truncate">{user.email}</p>
                     </div>
                     <button
+                      onClick={() => { setUserOpen(false); setSettingsOpen(true); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-white/70 hover:bg-white/5 transition-all"
+                    >
+                      <Cog6ToothIcon className="w-4 h-4" />
+                       Settings
+                    </button>
+                    <div className="h-px mx-2 my-1" style={{ background: "rgba(255,255,255,0.06)" }} />
+                    <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-all"
                     >
@@ -156,5 +168,7 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
         </div>
       </div>
     </header>
+    <AccountSettings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+  </>
   );
 }
