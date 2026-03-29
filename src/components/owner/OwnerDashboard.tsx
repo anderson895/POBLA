@@ -62,6 +62,7 @@ import {
   MagnifyingGlassIcon,
   ShieldCheckIcon,
   TruckIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 const CATEGORIES: MenuCategory[] = [
@@ -72,6 +73,95 @@ const CATEGORIES: MenuCategory[] = [
   "Sandwiches",
   "Chillers",
 ];
+
+
+// ─── Tags Input Component ────────────────────────────────────────────────────
+
+function TagsInput({
+  tags,
+  onChange,
+}: {
+  tags: string[];
+  onChange: (tags: string[]) => void;
+}) {
+  const [input, setInput] = React.useState("");
+
+  function addTag() {
+    const val = input.trim();
+    if (!val) return;
+    // support comma-pasted input too
+    const newTags = val
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t && !tags.includes(t));
+    if (newTags.length) onChange([...tags, ...newTags]);
+    setInput("");
+  }
+
+  function removeTag(tag: string) {
+    onChange(tags.filter((t) => t !== tag));
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag();
+    } else if (e.key === "Backspace" && !input && tags.length) {
+      onChange(tags.slice(0, -1));
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label>Tags</Label>
+
+      {/* Tag chips */}
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-brand/10 text-brand border border-brand/20"
+            >
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="hover:text-destructive transition-colors ml-0.5"
+              >
+                <XMarkIcon className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Input + Add button */}
+      <div className="flex gap-2">
+        <Input
+          placeholder="e.g. bestseller, spicy, new"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="flex-1"
+        />
+        <button
+          type="button"
+          onClick={addTag}
+          disabled={!input.trim()}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "#bc5d5d" }}
+        >
+          <PlusIcon className="w-3.5 h-3.5" />
+          Add
+        </button>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Press <kbd className="px-1 py-0.5 rounded bg-muted border text-[10px]">Enter</kbd> or click Add. Separate multiple with commas.
+      </p>
+    </div>
+  );
+}
 
 // ─── Menu Management ──────────────────────────────────────────────────────────
 
@@ -405,21 +495,10 @@ function MenuManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label>Tags (comma-separated)</Label>
-                <Input
-                  placeholder="e.g. bestseller, spicy, new"value={(editItem.tags || []).join(", ")}
-                  onChange={(e) =>
-                    setEditItem((p) => ({
-                      ...p,
-                      tags: e.target.value
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean),
-                    }))
-                  }
-                />
-              </div>
+              <TagsInput
+                tags={editItem.tags || []}
+                onChange={(tags) => setEditItem((p) => ({ ...p, tags }))}
+              />
 
               <div className="flex items-center justify-between p-3 bg-muted/40 rounded-xl">
                 <div>
