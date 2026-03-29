@@ -171,7 +171,7 @@ function MenuItemCard({ item, onGuestClick }: { item: MenuItem; onGuestClick: ()
   );
 }
 
-export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void }) {
+export default function CustomerMenu({ onOpenCart, onLoginClick }: { onOpenCart: () => void; onLoginClick?: () => void }) {
   const [query, setQuery]         = useState("");
   const [cat, setCat]             = useState<MenuCategory | "All">("All");
   const [activeTab, setActiveTab] = useState<PageTab>("menu");
@@ -230,7 +230,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
           style={{ background: "rgba(188,93,93,0.08)", border: "1px solid rgba(188,93,93,0.2)" }}>
           <LockClosedIcon className="w-4 h-4 text-brand shrink-0" />
           <span className="text-foreground flex-1">Browse only mode. Login to add items to cart and place orders.</span>
-          <button onClick={exitGuest} className="flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/70 whitespace-nowrap">
+          <button onClick={onLoginClick ?? exitGuest} className="flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/70 whitespace-nowrap">
             <ArrowRightStartOnRectangleIcon className="w-3.5 h-3.5" /> Login now
           </button>
         </div>
@@ -241,7 +241,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
         <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-700">
           <LockClosedIcon className="w-4 h-4 shrink-0" />
           <span className="flex-1">Login required to place an order.</span>
-          <button onClick={exitGuest} className="text-xs font-bold text-brand flex items-center gap-1">
+          <button onClick={onLoginClick ?? exitGuest} className="text-xs font-bold text-brand flex items-center gap-1">
             <ArrowRightStartOnRectangleIcon className="w-3.5 h-3.5" /> Login
           </button>
         </div>

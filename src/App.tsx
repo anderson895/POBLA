@@ -93,7 +93,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar onCartClick={() => {}} onLoginClick={() => openAuth("login")} />
-        <main><CustomerMenu onOpenCart={() => {}} /></main>
+        <main><CustomerMenu onOpenCart={() => {}} onLoginClick={() => openAuth("login")} /></main>
         {authOpen && authPage === "login" && (
           <LoginPage
             onClose={() => setAuthOpen(false)}
@@ -121,7 +121,7 @@ function AppContent() {
 
   // 4 roles: customer, kitchen, delivery, owner
   const pages: Record<string, React.ReactNode> = {
-    customer: <CustomerMenu onOpenCart={() => setCartOpen(true)} />,
+    customer: <CustomerMenu onOpenCart={() => setCartOpen(true)} onLoginClick={() => openAuth("login")} />,
     kitchen:  <KitchenDashboard />,
     delivery: <DeliveryDashboard />,
     owner:    <OwnerDashboard />,
@@ -129,10 +129,19 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onCartClick={() => setCartOpen(true)} />
+      <Navbar onCartClick={() => setCartOpen(true)} onLoginClick={() => openAuth("login")} />
       <main>{pages[role] ?? <CustomerMenu onOpenCart={() => setCartOpen(true)} />}</main>
       {role === "customer" && (
         <CartSidebar open={cartOpen} onClose={() => setCartOpen(false)} />
+      )}
+      {authOpen && authPage === "login" && (
+        <LoginPage onClose={() => setAuthOpen(false)} onNavigateSignup={() => setAuthPage("signup")} onNavigateRider={() => setAuthPage("rider")} />
+      )}
+      {authOpen && authPage === "signup" && (
+        <SignupPage onNavigateLogin={() => setAuthPage("login")} onNavigateRider={() => setAuthPage("rider")} />
+      )}
+      {authOpen && authPage === "rider" && (
+        <RiderRegistrationPage onNavigateLogin={() => setAuthPage("login")} onNavigateSignup={() => setAuthPage("signup")} />
       )}
     </div>
   );
