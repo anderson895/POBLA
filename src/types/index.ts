@@ -1,4 +1,11 @@
-export type UserRole = "customer" | "kitchen" | "delivery" | "owner" | "staff" | "manager";
+export type UserRole =
+  | "customer"
+  | "kitchen"
+  | "delivery"
+  | "owner"
+  | "staff"
+  | "manager"
+  | "cashier";
 
 export type MenuCategory =
   | "Rice Meals"
@@ -23,13 +30,19 @@ export interface MenuItem {
   updatedAt: Date;
 }
 
+// Status flow:
+// pending → confirmed (cashier) → preparing (kitchen) → ready
+// → picked_up (rider) → out_for_delivery → delivered
+// pickup path: ready → completed
 export type OrderStatus =
   | "pending"
   | "confirmed"
   | "preparing"
   | "ready"
+  | "picked_up"
   | "out_for_delivery"
   | "delivered"
+  | "completed"
   | "cancelled";
 
 export type PaymentMethod = "cash" | "gcash" | "maya" | "card";
@@ -51,6 +64,7 @@ export interface Order {
   customerId: string;
   customerName: string;
   customerPhone: string;
+  customerEmail?: string;
   customerAddress?: string;
   items: OrderItem[];
   status: OrderStatus;
@@ -63,6 +77,14 @@ export interface Order {
   notes?: string;
   assignedRiderId?: string;
   assignedRiderName?: string;
+  assignedRiderPhone?: string;
+  photoProofUrl?: string;
+  estimatedReadyMinutes?: number;
+  estimatedDeliveryMinutes?: number;
+  confirmedAt?: Date;
+  preparedAt?: Date;
+  pickedUpAt?: Date;
+  deliveredAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,4 +100,20 @@ export interface Cart {
   orderType: OrderType;
   deliveryAddress: string;
   paymentMethod: PaymentMethod;
+}
+
+export type RiderRegistrationStatus = "pending" | "approved" | "rejected";
+
+export interface RiderRegistration {
+  id: string;
+  uid: string;
+  name: string;
+  email: string;
+  phone: string;
+  vehicleType: "motorcycle" | "bicycle" | "car";
+  plateNumber: string;
+  status: RiderRegistrationStatus;
+  rejectionReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

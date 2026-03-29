@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import type { MenuItem, MenuCategory, OrderStatus } from "@/types";
+import type { MenuItem, MenuCategory, OrderStatus, RiderRegistration } from "@/types";
 import { useApp } from "@/context/AppContext";
+import { subscribeToRiderRegistrations, reviewRegistration } from "@/lib/riderService";
 import { formatCurrency, ORDER_STATUS_LABEL, cn } from "@/lib/utils";
 import { thumbUrl } from "@/lib/cloudinary";
 import {
@@ -59,6 +60,7 @@ import {
   ArrowPathIcon,
   MagnifyingGlassIcon,
   ShieldCheckIcon,
+  TruckIcon,
 } from "@heroicons/react/24/outline";
 
 const CATEGORIES: MenuCategory[] = [
@@ -173,7 +175,7 @@ function MenuManagement() {
         </p>
         <Button size="sm" onClick={openNew}>
           <PlusIcon className="w-4 h-4" />
-          Add Item
+        Add Item
         </Button>
       </div>
 
@@ -228,14 +230,14 @@ function MenuManagement() {
               {state.menuLoading && (
                 <tr>
                   <td colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
-                    Loading menu from Firebase…
+                  Loading menu from Firebase…
                   </td>
                 </tr>
               )}
               {!state.menuLoading && filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-10 text-sm text-muted-foreground">
-                    No items yet. Add a menu item to get started.
+                  No items yet. Add a menu item to get started.
                   </td>
                 </tr>
               )}
@@ -315,23 +317,20 @@ function MenuManagement() {
             <div className="space-y-4">
               {/* Cloudinary image upload */}
               <ImageUpload
-                label="Food Photo"
-                value={editItem.imageUrl || ""}
+                label="Food Photo"value={editItem.imageUrl || ""}
                 onChange={(url) =>
                   setEditItem((p) => ({ ...p, imageUrl: url }))
                 }
                 onPublicId={(id) =>
                   setEditItem((p) => ({ ...p, imagePublicId: id }))
                 }
-                folder="pobla-menu"
-                aspectRatio="landscape"
+                folder="pobla-menu"aspectRatio="landscape"
               />
 
               <div className="space-y-1.5">
                 <Label>Item Name</Label>
                 <Input
-                  placeholder="e.g. Adobo sa Gata"
-                  value={editItem.name || ""}
+                  placeholder="e.g. Adobo sa Gata"value={editItem.name || ""}
                   onChange={(e) =>
                     setEditItem((p) => ({ ...p, name: e.target.value }))
                   }
@@ -341,8 +340,7 @@ function MenuManagement() {
               <div className="space-y-1.5">
                 <Label>Description</Label>
                 <Textarea
-                  placeholder="Brief description of the dish..."
-                  value={editItem.description || ""}
+                  placeholder="Brief description of the dish..."value={editItem.description || ""}
                   onChange={(e) =>
                     setEditItem((p) => ({
                       ...p,
@@ -357,8 +355,7 @@ function MenuManagement() {
                 <div className="space-y-1.5">
                   <Label>Price (₱)</Label>
                   <Input
-                    type="number"
-                    min={0}
+                    type="number"min={0}
                     value={editItem.price || ""}
                     onChange={(e) =>
                       setEditItem((p) => ({
@@ -371,8 +368,7 @@ function MenuManagement() {
                 <div className="space-y-1.5">
                   <Label>Prep Time (min)</Label>
                   <Input
-                    type="number"
-                    min={1}
+                    type="number"min={1}
                     value={editItem.preparationTime || ""}
                     onChange={(e) =>
                       setEditItem((p) => ({
@@ -411,8 +407,7 @@ function MenuManagement() {
               <div className="space-y-1.5">
                 <Label>Tags (comma-separated)</Label>
                 <Input
-                  placeholder="e.g. bestseller, spicy, new"
-                  value={(editItem.tags || []).join(", ")}
+                  placeholder="e.g. bestseller, spicy, new"value={(editItem.tags || []).join(", ")}
                   onChange={(e) =>
                     setEditItem((p) => ({
                       ...p,
@@ -428,10 +423,10 @@ function MenuManagement() {
               <div className="flex items-center justify-between p-3 bg-muted/40 rounded-xl">
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    Available
+                  Available
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Show item on the menu
+                  Show item on the menu
                   </p>
                 </div>
                 <Switch
@@ -452,16 +447,13 @@ function MenuManagement() {
 
               <div className="flex gap-2 pt-1">
                 <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setDialogOpen(false)}
+                  variant="outline"className="flex-1"onClick={() => setDialogOpen(false)}
                   disabled={saving}
                 >
-                  Cancel
+                Cancel
                 </Button>
                 <Button
-                  className="flex-1"
-                  onClick={handleSave}
+                  className="flex-1"onClick={handleSave}
                   disabled={saving}
                 >
                   {saving
@@ -603,13 +595,13 @@ function Reports() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-1.5">
               <TagIcon className="w-4 h-4 text-brand" />
-              Top Selling Items
+            Top Selling Items
             </CardTitle>
           </CardHeader>
           <CardContent>
             {stats.topItems.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-4">
-                No orders yet
+              No orders yet
               </p>
             ) : (
               stats.topItems.map((item, i) => (
@@ -649,13 +641,13 @@ function Reports() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-1.5">
               <ChartBarIcon className="w-4 h-4 text-brand" />
-              Orders by Status
+            Orders by Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             {Object.entries(stats.byStatus).length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-4">
-                No orders yet
+              No orders yet
               </p>
             ) : (
               Object.entries(stats.byStatus).map(([status, count]) => {
@@ -675,8 +667,7 @@ function Reports() {
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-brand rounded-full transition-all"
-                        style={{ width: `${pct}%` }}
+                        className="h-full bg-brand rounded-full transition-all"style={{ width: `${pct}%` }}
                       />
                     </div>
                   </div>
@@ -692,13 +683,13 @@ function Reports() {
         <CardHeader className="pb-3">
           <CardTitle className="text-sm flex items-center gap-1.5">
             <ClipboardDocumentListIcon className="w-4 h-4 text-brand" />
-            Recent Orders
+          Recent Orders
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {orders.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-10">
-              No orders placed yet
+            No orders placed yet
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -841,7 +832,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserCircleIcon className="w-5 h-5 text-brand" />
-            Add Staff / Manager
+          Add Staff / Manager
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
@@ -856,9 +847,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
           <div className="space-y-1.5">
             <Label htmlFor="au-name">Full Name</Label>
             <Input
-              id="au-name"
-              placeholder="Juan dela Cruz"
-              value={name}
+              id="au-name"placeholder="Juan dela Cruz"value={name}
               onChange={(e) => setName(e.target.value)}
               className="rounded-xl"
             />
@@ -868,10 +857,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
           <div className="space-y-1.5">
             <Label htmlFor="au-email">Email</Label>
             <Input
-              id="au-email"
-              type="email"
-              placeholder="juan@email.com"
-              value={email}
+              id="au-email"type="email"placeholder="juan@email.com"value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="rounded-xl"
             />
@@ -882,16 +868,13 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
             <Label htmlFor="au-password">Password</Label>
             <div className="relative">
               <Input
-                id="au-password"
-                type={showPass ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
+                id="au-password"type={showPass ? "text" : "password"}
+                placeholder="••••••••"value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="rounded-xl pr-10"
               />
               <button
-                type="button"
-                onClick={() => setShowPass((s) => !s)}
+                type="button"onClick={() => setShowPass((s) => !s)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPass
@@ -932,7 +915,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
           {/* Actions */}
           <div className="flex gap-2 justify-end pt-2">
             <Button variant="outline" onClick={handleClose} disabled={saving}>
-              Cancel
+            Cancel
             </Button>
             <Button
               onClick={handleSubmit}
@@ -943,7 +926,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
               {saving ? (
                 <span className="flex items-center gap-2">
                   <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                  Creating…
+                Creating…
                 </span>
               ) : "Create Account"}
             </Button>
@@ -1102,16 +1085,14 @@ function UserManagement() {
         <div className="relative flex-1">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or email…"
-            value={search}
+            placeholder="Search by name or email…"value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 rounded-xl"
           />
         </div>
         <Button
           onClick={() => setAddUserOpen(true)}
-          className="rounded-xl shrink-0 text-white font-semibold flex items-center gap-1.5"
-          style={{ background: "#bc5d5d" }}
+          className="rounded-xl shrink-0 text-white font-semibold flex items-center gap-1.5"style={{ background: "#bc5d5d" }}
         >
           <PlusIcon className="w-4 h-4" />
           <span className="hidden sm:inline">Add User</span>
@@ -1162,8 +1143,7 @@ function UserManagement() {
           className="bg-white rounded-2xl border border-border p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow"
         >
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-black text-sm text-white"
-               style={{ background: "#bc5d5d" }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-black text-sm text-white"style={{ background: "#bc5d5d" }}>
             {user.name?.charAt(0)?.toUpperCase() ?? "?"}
           </div>
 
@@ -1223,15 +1203,14 @@ function UserManagement() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to remove{" "}
+            Are you sure you want to remove{" "}
               <strong className="text-foreground">{deleteTarget?.name}</strong>?
               This only removes their Firestore profile — their Firebase Auth account remains.
             </p>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
               <Button
-                variant="destructive"
-                onClick={() => deleteTarget && handleDelete(deleteTarget)}
+                variant="destructive"onClick={() => deleteTarget && handleDelete(deleteTarget)}
                 disabled={saving === deleteTarget?.uid}
               >
                 {saving === deleteTarget?.uid ? "Removing…" : "Remove"}
@@ -1245,15 +1224,110 @@ function UserManagement() {
 }
 
 
+
+function RiderApprovals() {
+  const [regs, setRegs] = React.useState<RiderRegistration[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [rejReason, setRejReason] = React.useState<Record<string, string>>({});
+
+  React.useEffect(() => {
+    return subscribeToRiderRegistrations(r => { setRegs(r); setLoading(false); });
+  }, []);
+
+  async function handleApprove(reg: RiderRegistration) {
+    await reviewRegistration(reg.id, reg.uid, "approved");
+  }
+  async function handleReject(reg: RiderRegistration) {
+    await reviewRegistration(reg.id, reg.uid, "rejected", rejReason[reg.id] || "Does not meet requirements");
+  }
+
+  const pending  = regs.filter(r => r.status === "pending");
+  const reviewed = regs.filter(r => r.status !== "pending");
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-2">
+        <h3 className="font-display font-bold text-foreground">Rider Registrations</h3>
+        {pending.length > 0 && (
+          <span className="text-xs font-black text-white bg-brand px-2 py-0.5 rounded-full">{pending.length} pending</span>
+        )}
+      </div>
+
+      {loading && <p className="text-sm text-muted-foreground">Loading registrations...</p>}
+
+      {!loading && pending.length === 0 && reviewed.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground text-sm">No rider registrations yet</div>
+      )}
+
+      {/* Pending */}
+      {pending.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Awaiting Review</p>
+          {pending.map(reg => (
+            <div key={reg.id} className="bg-white border border-border rounded-2xl p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold text-foreground">{reg.name}</p>
+                  <p className="text-xs text-muted-foreground">{reg.email} · {reg.phone}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full capitalize">{reg.vehicleType}</span>
+                    <span className="text-xs bg-muted px-2 py-0.5 rounded-full font-mono">{reg.plateNumber}</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold bg-gray-100 text-gray-700 px-2 py-1 rounded-full border">Pending</span>
+              </div>
+              <input
+                type="text"placeholder="Rejection reason (if rejecting)..."value={rejReason[reg.id] || ""}
+                onChange={e => setRejReason(r => ({ ...r, [reg.id]: e.target.value }))}
+                className="w-full text-xs border border-border rounded-xl px-3 py-2 bg-muted/40 focus:outline-none focus:ring-1 focus:ring-brand"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => handleApprove(reg)}
+                  className="flex-1 py-2 rounded-xl text-sm font-bold text-white transition-all active:scale-95"style={{ background: "#bc5d5d" }}>
+             Approve
+                </button>
+                <button onClick={() => handleReject(reg)}
+                  className="flex-1 py-2 rounded-xl text-sm font-bold border border-red-300 text-red-600 hover:bg-red-50 transition-all">
+             Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Reviewed */}
+      {reviewed.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Reviewed</p>
+          {reviewed.map(reg => (
+            <div key={reg.id} className="flex items-center gap-3 p-3 bg-white border border-border rounded-xl">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">{reg.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{reg.email}</p>
+              </div>
+              <span className={cn("text-[10px] font-bold px-2 py-1 rounded-full border",
+                reg.status === "approved" ? "bg-green-100 text-green-700 border-green-200" : "bg-red-100 text-red-600 border-red-200"
+              )}>
+                {reg.status === "approved" ? " Approved" : " Rejected"}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function OwnerDashboard() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       <div className="mb-6">
         <h2 className="font-display font-bold text-xl text-foreground">
-          Owner Dashboard
+        Owner Dashboard
         </h2>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Manage your menu, monitor sales, and control user roles
+        Manage your menu, monitor sales, and control user roles
         </p>
       </div>
       <Tabs defaultValue="reports">
@@ -1267,6 +1341,9 @@ export default function OwnerDashboard() {
           <TabsTrigger value="users" className="flex items-center gap-1.5">
             <UsersIcon className="w-4 h-4" /> User Management
           </TabsTrigger>
+          <TabsTrigger value="riders" className="flex items-center gap-1.5">
+            <TruckIcon className="w-4 h-4" /> Rider Approvals
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="reports">
           <Reports />
@@ -1276,6 +1353,9 @@ export default function OwnerDashboard() {
         </TabsContent>
         <TabsContent value="users">
           <UserManagement />
+        </TabsContent>
+        <TabsContent value="riders">
+          <RiderApprovals />
         </TabsContent>
       </Tabs>
     </div>

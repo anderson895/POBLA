@@ -142,7 +142,7 @@ export async function sendOrderConfirmation(order: Order, customerEmail: string)
 
   await sendEmail(
     customerEmail,
-    `✅ Order Confirmed — ${order.orderNumber} | Pobla`,
+    ` Order Confirmed — ${order.orderNumber} | Pobla`,
     baseTemplate("Order Confirmed!", body)
   );
 }
@@ -166,7 +166,7 @@ export async function sendOrderReadyNotification(order: Order, customerEmail: st
       <tr>
         <td style="font-size:12px;color:#166534;padding-top:8px;">Status</td>
         <td style="font-size:13px;font-weight:700;color:#166534;text-align:right;padding-top:8px;">
-          ${isDelivery ? "🛵 Out for Delivery" : "✅ Ready for Pickup"}
+          ${isDelivery ? " Out for Delivery" : " Ready for Pickup"}
         </td>
       </tr>
       <tr>
@@ -184,7 +184,7 @@ export async function sendOrderReadyNotification(order: Order, customerEmail: st
 
   await sendEmail(
     customerEmail,
-    `🍽️ Order Ready — ${order.orderNumber} | Pobla`,
-    baseTemplate(isDelivery ? "On the Way! 🛵" : "Ready for Pickup! ✅", body)
+    ` Order Ready — ${order.orderNumber} | Pobla`,
+    baseTemplate(isDelivery ? "On the Way! " : "Ready for Pickup! ", body)
   );
 }

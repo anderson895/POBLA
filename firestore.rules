@@ -15,16 +15,23 @@ service cloud.firestore {
       return isLoggedIn() && userRole() in ["owner", "manager"];
     }
 
+    function isCashier() {
+      return isLoggedIn() && userRole() in ["owner", "manager", "cashier"];
+    }
+
+    function isKitchen() {
+      return isLoggedIn() && userRole() in ["owner", "manager", "kitchen", "staff"];
+    }
+
+    function isDelivery() {
+      return isLoggedIn() && userRole() in ["delivery"];
+    }
+
     // ── users ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Any logged-in user can read their own doc
-      allow get:    if isLoggedIn() && request.auth.uid == userId;
-      // Owner/Manager can read ANY single doc OR list the whole collection
-      allow get:    if isOwnerOrManager();
+      allow get:    if isLoggedIn() && (request.auth.uid == userId || isOwnerOrManager());
       allow list:   if isOwnerOrManager();
-      // Anyone logged in can create (registration + Add User flow)
       allow create: if isLoggedIn();
-      // Own profile (no role self-promotion) OR owner/manager can change role
       allow update: if isLoggedIn() && (
                       (request.auth.uid == userId &&
                        !("role" in request.resource.data.diff(resource.data).affectedKeys()))
@@ -35,18 +42,43 @@ service cloud.firestore {
 
     // ── menuItems ─────────────────────────────────────────────────────────────
     match /menuItems/{itemId} {
-      allow read:   if true;
-      allow create: if isLoggedIn();
-      allow update: if isLoggedIn();
-      allow delete: if isLoggedIn();
+      allow read:   if true;   // Anyone can browse menu
+      allow create: if isOwnerOrManager();
+      allow update: if isOwnerOrManager();
+      allow delete: if isOwnerOrManager();
     }
 
     // ── orders ────────────────────────────────────────────────────────────────
     match /orders/{orderId} {
-      allow read:   if isLoggedIn();
-      allow create: if isLoggedIn();
-      allow update: if isLoggedIn();
+      // Customer can read their own orders; staff can read all
+      allow read:   if isLoggedIn() && (
+                      resource.data.userId == request.auth.uid
+                      || isOwnerOrManager()
+                      || isCashier()
+                      || isKitchen()
+                      || isDelivery()
+                    );
+      allow create: if isLoggedIn();   // Any logged-in user can place order
+      allow update: if isLoggedIn() && (
+                      // Customer can only update their own (e.g. cancel)
+                      (resource.data.userId == request.auth.uid)
+                      || isOwnerOrManager()
+                      || isCashier()
+                      || isKitchen()
+                      || isDelivery()
+                    );
       allow delete: if false;
+    }
+
+    // ── riderRegistrations ────────────────────────────────────────────────────
+    match /riderRegistrations/{regId} {
+      allow read:   if isLoggedIn() && (
+                      resource.data.uid == request.auth.uid
+                      || isOwnerOrManager()
+                    );
+      allow create: if isLoggedIn();
+      allow update: if isOwnerOrManager();
+      allow delete: if isOwnerOrManager();
     }
 
   }
