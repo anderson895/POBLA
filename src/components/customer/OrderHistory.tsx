@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import OrderTracking from "./OrderTracking";
 import {
   ClockIcon, ArrowPathIcon, InboxIcon,
-  CheckCircleIcon, XCircleIcon, MapPinIcon,
+  CheckCircleIcon, XCircleIcon, MapPinIcon, CameraIcon,
 } from "@heroicons/react/24/outline";
 
 const ACTIVE_STATUSES = ["pending","confirmed","preparing","ready","picked_up","out_for_delivery"];
@@ -21,6 +21,7 @@ export default function OrderHistory({ onReorder }: { onReorder: () => void }) {
   const [trackingId, setTrackingId] = useState<string | null>(null);
   const [reorderMsg, setReorderMsg] = useState<string | null>(null);
   const [reorderErr, setReorderErr] = useState<string | null>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -65,6 +66,36 @@ export default function OrderHistory({ onReorder }: { onReorder: () => void }) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+      {/* Proof of Delivery Modal */}
+      {proofUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setProofUrl(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <p className="font-display font-bold text-sm text-foreground flex items-center gap-2">
+                <CheckCircleIcon className="w-4 h-4 text-green-500" /> Delivery Photo Proof
+              </p>
+              <button
+                onClick={() => setProofUrl(null)}
+                className="p-1 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <XCircleIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <img src={proofUrl} alt="Delivery proof" className="w-full object-cover max-h-80" />
+            <div className="p-3 bg-green-50 border-t border-green-100">
+              <p className="text-xs text-green-700 text-center font-semibold flex items-center justify-center gap-1.5">
+                <CheckCircleIcon className="w-4 h-4 text-green-500" /> Delivery confirmed by rider
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <h2 className="font-display font-bold text-lg text-foreground">My Orders</h2>
         {orders.length > 0 && (
@@ -158,6 +189,15 @@ export default function OrderHistory({ onReorder }: { onReorder: () => void }) {
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-brand text-white hover:bg-brand/90 transition-all active:scale-95"
                   >
                     <MapPinIcon className="w-3.5 h-3.5" /> Track Order
+                  </button>
+                )}
+                {/* View proof for delivered orders */}
+                {order.status === "delivered" && order.photoProofUrl && (
+                  <button
+                    onClick={() => setProofUrl(order.photoProofUrl!)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-green-700 border border-green-300 bg-green-50 hover:bg-green-500 hover:text-white transition-all active:scale-95"
+                  >
+                    <CameraIcon className="w-3.5 h-3.5" /> View Proof
                   </button>
                 )}
                 <button

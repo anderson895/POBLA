@@ -63,7 +63,9 @@ import {
   ShieldCheckIcon,
   TruckIcon,
   XMarkIcon,
+  InboxIcon,
 } from "@heroicons/react/24/outline";
+import OwnerOrderHistory from "./OwnerOrderHistory";
 
 const CATEGORIES: MenuCategory[] = [
   "Rice Meals",
@@ -1042,17 +1044,21 @@ interface UserDoc {
 }
 
 const ROLE_LABELS: Record<AppRole, string> = {
-  customer: "Customer",
-  kitchen:  "Kitchen Staff",
-  delivery: "Delivery Rider",
-  owner:    "Owner / Manager",
+  customer:         "Customer",
+  kitchen:          "Kitchen Staff",
+  delivery:         "Delivery Rider",
+  owner:            "Owner / Manager",
+  delivery_pending: "Rider (Pending)",
+  rejected:         "Rejected",
 };
 
 const ROLE_COLORS: Record<AppRole, string> = {
-  customer: "bg-blue-100 text-blue-700 border-blue-200",
-  kitchen:  "bg-orange-100 text-orange-700 border-orange-200",
-  delivery: "bg-green-100 text-green-700 border-green-200",
-  owner:    "bg-purple-100 text-purple-700 border-purple-200",
+  customer:         "bg-blue-100 text-blue-700 border-blue-200",
+  kitchen:          "bg-orange-100 text-orange-700 border-orange-200",
+  delivery:         "bg-green-100 text-green-700 border-green-200",
+  owner:            "bg-purple-100 text-purple-700 border-purple-200",
+  delivery_pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  rejected:         "bg-red-100 text-red-700 border-red-200",
 };
 
 function UserManagement() {
@@ -1126,11 +1132,13 @@ function UserManagement() {
   );
 
   const counts = useMemo(() => ({
-    all:      users.length,
-    customer: users.filter((u) => u.role === "customer").length,
-    kitchen:  users.filter((u) => u.role === "kitchen").length,
-    delivery: users.filter((u) => u.role === "delivery").length,
-    owner:    users.filter((u) => u.role === "owner").length,
+    all:              users.length,
+    customer:         users.filter((u) => u.role === "customer").length,
+    kitchen:          users.filter((u) => u.role === "kitchen").length,
+    delivery:         users.filter((u) => u.role === "delivery").length,
+    owner:            users.filter((u) => u.role === "owner").length,
+    delivery_pending: users.filter((u) => u.role === "delivery_pending").length,
+    rejected:         users.filter((u) => u.role === "rejected").length,
   }), [users]);
 
   return (
@@ -1151,7 +1159,7 @@ function UserManagement() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {(["customer","kitchen","delivery","owner"] as AppRole[]).map((r) => (
+        {(["customer","kitchen","delivery","owner","delivery_pending","rejected"] as AppRole[]).map((r) => (
           <button
             key={r}
             onClick={() => setFilterRole(filterRole === r ? "all" : r)}
@@ -1435,6 +1443,9 @@ export default function OwnerDashboard() {
           <TabsTrigger value="riders" className="flex items-center gap-1.5">
             <TruckIcon className="w-4 h-4" /> Rider Approvals
           </TabsTrigger>
+          <TabsTrigger value="orders" className="flex items-center gap-1.5">
+            <InboxIcon className="w-4 h-4" /> Order History
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="reports">
           <Reports />
@@ -1447,6 +1458,9 @@ export default function OwnerDashboard() {
         </TabsContent>
         <TabsContent value="riders">
           <RiderApprovals />
+        </TabsContent>
+        <TabsContent value="orders">
+          <OwnerOrderHistory />
         </TabsContent>
       </Tabs>
     </div>

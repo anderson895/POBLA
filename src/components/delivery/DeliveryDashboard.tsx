@@ -9,8 +9,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   MapPinIcon, PhoneIcon, CheckCircleIcon, TruckIcon,
   BanknotesIcon, CreditCardIcon, PowerIcon, CameraIcon,
-  XMarkIcon, ArrowPathIcon,
+  XMarkIcon, ArrowPathIcon, ClockIcon,
 } from "@heroicons/react/24/outline";
+import RiderOrderHistory from "./RiderOrderHistory";
 import {
   subscribeToAvailableDeliveries,
   subscribeToRiderOrders,
@@ -292,6 +293,7 @@ export default function DeliveryDashboard() {
           Active {active.length > 0 && <span className="ml-1 text-xs font-black text-brand">{active.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="done" className="flex-1">Completed</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="available">
@@ -346,6 +348,10 @@ export default function DeliveryDashboard() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="history">
+          <RiderOrderHistory />
         </TabsContent>
       </Tabs>
     </div>
