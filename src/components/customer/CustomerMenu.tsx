@@ -16,36 +16,41 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon,
   LockClosedIcon,
   ListBulletIcon,
   Squares2X2Icon,
   ArrowRightStartOnRectangleIcon,
-  SparklesIcon,
-  CakeIcon,
-  BeakerIcon,
-  ArchiveBoxIcon,
   StarIcon,
-  BoltIcon,
+  BeakerIcon,
 } from "@heroicons/react/24/outline";
 import { FireIcon } from "@heroicons/react/24/solid";
 
-const CATEGORIES: MenuCategory[] = ["Appetizers","Main Course","Desserts","Beverages","Sides","Specials"];
+const CATEGORIES: MenuCategory[] = [
+  "Rice Meals",
+  "Ala Carte",
+  "Pobla Specials",
+  "Burgers",
+  "Sandwiches",
+  "Chillers",
+];
 
-// Hero icons replacing emojis for categories
+// Heroicons per category
 const CAT_ICON: Record<MenuCategory, React.ReactNode> = {
-  Appetizers:    <SparklesIcon className="w-4 h-4" />,
-  "Main Course": <ArchiveBoxIcon className="w-4 h-4" />,
-  Desserts:      <CakeIcon className="w-4 h-4" />,
-  Beverages:     <BeakerIcon className="w-4 h-4" />,
-  Sides:         <BoltIcon className="w-4 h-4" />,
-  Specials:      <StarIcon className="w-4 h-4" />,
+  "Rice Meals":    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15m-6.75-12.891c-.501-.05-.75-.082-.75-.082M5 14.5l-1.22 1.22a2.25 2.25 0 000 3.182l.696.696a2.25 2.25 0 003.182 0l.696-.696a2.25 2.25 0 000-3.182L5 14.5zm14.8.5l-1.22 1.22a2.25 2.25 0 010 3.182l-.696.696a2.25 2.25 0 01-3.182 0l-.696-.696a2.25 2.25 0 010-3.182L19.8 15z" /></svg>,
+  "Ala Carte":     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0L3 18m0-13.5h18" /></svg>,
+  "Pobla Specials":<StarIcon className="w-4 h-4" />,
+  "Burgers":       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>,
+  "Sandwiches":    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" /></svg>,
+  "Chillers":      <BeakerIcon className="w-4 h-4" />,
 };
 
 const CAT_BG: Record<MenuCategory, string> = {
-  Appetizers: "bg-green-50",   "Main Course": "bg-amber-50",
-  Desserts:   "bg-pink-50",    Beverages:    "bg-blue-50",
-  Sides:      "bg-orange-50",  Specials:     "bg-purple-50",
+  "Rice Meals":    "bg-amber-50",
+  "Ala Carte":     "bg-orange-50",
+  "Pobla Specials":"bg-red-50",
+  "Burgers":       "bg-yellow-50",
+  "Sandwiches":    "bg-lime-50",
+  "Chillers":      "bg-blue-50",
 };
 
 type PageTab = "menu" | "orders";
@@ -77,10 +82,8 @@ function MenuItemCard({ item, onGuestClick }: { item: MenuItem; onGuestClick: ()
     if (!isLoggedIn) { onGuestClick(); return; }
     dispatch({ type: "ADD_TO_CART", payload: { menuItem: item, quantity: 1 } });
   };
-  const inc = () =>
-    dispatch({ type: "UPDATE_CART_ITEM", payload: { menuItemId: item.id, quantity: qty + 1 } });
-  const dec = () =>
-    dispatch({ type: "UPDATE_CART_ITEM", payload: { menuItemId: item.id, quantity: qty - 1 } });
+  const inc = () => dispatch({ type: "UPDATE_CART_ITEM", payload: { menuItemId: item.id, quantity: qty + 1 } });
+  const dec = () => dispatch({ type: "UPDATE_CART_ITEM", payload: { menuItemId: item.id, quantity: qty - 1 } });
 
   return (
     <Card className={cn(
@@ -94,9 +97,9 @@ function MenuItemCard({ item, onGuestClick }: { item: MenuItem; onGuestClick: ()
           <img src={cardUrl(item.imageUrl)} alt={item.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-1">
-            <span className="text-muted-foreground/50">{CAT_ICON[item.category]}</span>
-            <span className="text-xs text-muted-foreground">No photo yet</span>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <span className="text-muted-foreground/40 scale-150">{CAT_ICON[item.category]}</span>
+            <span className="text-xs text-muted-foreground/60">No photo yet</span>
           </div>
         )}
 
@@ -157,13 +160,9 @@ function MenuItemCard({ item, onGuestClick }: { item: MenuItem; onGuestClick: ()
               </div>
             )
           ) : (
-            /* Guest: show locked button — login required to order */
-            <button
-              onClick={onGuestClick}
-              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-muted-foreground border border-dashed border-border hover:border-brand/40 hover:text-brand transition-all"
-            >
-              <LockClosedIcon className="w-3 h-3" />
-              Login to order
+            <button onClick={onGuestClick}
+              className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-muted-foreground border border-dashed border-border hover:border-brand/40 hover:text-brand transition-all">
+              <LockClosedIcon className="w-3 h-3" /> Login to order
             </button>
           )
         )}
@@ -173,14 +172,13 @@ function MenuItemCard({ item, onGuestClick }: { item: MenuItem; onGuestClick: ()
 }
 
 export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void }) {
-  const [query, setQuery] = useState("");
-  const [cat, setCat] = useState<MenuCategory | "All">("All");
+  const [query, setQuery]         = useState("");
+  const [cat, setCat]             = useState<MenuCategory | "All">("All");
   const [activeTab, setActiveTab] = useState<PageTab>("menu");
   const [guestBanner, setGuestBanner] = useState(false);
   const { state } = useApp();
   const { user, isGuest, exitGuest } = useAuth();
   const isLoggedIn = !!user && !isGuest;
-
   const { menuItems, menuLoading, menuError } = state;
 
   const filtered = useMemo(() =>
@@ -218,36 +216,27 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
             POBLACION PARES ATBP.
           </p>
           <h1 className="font-display font-black text-3xl leading-tight mb-2">
-            Order fresh.<br />
-            Pick your <span style={{ color: "#bc5d5d" }}>pares.</span>
+            Order fresh.<br />Pick your <span style={{ color: "#bc5d5d" }}>pares.</span>
           </h1>
           <p className="text-sm text-white/50">
-            {isGuest
-              ? "Browsing as guest — Login to place orders"
-              : "Authentic Filipino cuisine • Free delivery over ₱500"}
+            {isGuest ? "Browsing as guest — Login to place orders" : "Authentic Filipino cuisine • Free delivery over ₱500"}
           </p>
         </div>
       </div>
 
-      {/* Guest browse-only banner */}
+      {/* Guest banner */}
       {isGuest && (
         <div className="flex items-center gap-3 p-4 rounded-2xl text-sm"
-             style={{ background: "rgba(188,93,93,0.08)", border: "1px solid rgba(188,93,93,0.2)" }}>
+          style={{ background: "rgba(188,93,93,0.08)", border: "1px solid rgba(188,93,93,0.2)" }}>
           <LockClosedIcon className="w-4 h-4 text-brand shrink-0" />
-          <span className="text-foreground flex-1">
-            Browse only mode. Login or create an account to add items to cart and place orders.
-          </span>
-          <button
-            onClick={exitGuest}
-            className="flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/70 whitespace-nowrap"
-          >
-            <ArrowRightStartOnRectangleIcon className="w-3.5 h-3.5" />
-            Login now
+          <span className="text-foreground flex-1">Browse only mode. Login to add items to cart and place orders.</span>
+          <button onClick={exitGuest} className="flex items-center gap-1.5 text-xs font-bold text-brand hover:text-brand/70 whitespace-nowrap">
+            <ArrowRightStartOnRectangleIcon className="w-3.5 h-3.5" /> Login now
           </button>
         </div>
       )}
 
-      {/* Guest click-to-order toast */}
+      {/* Click-to-order toast */}
       {guestBanner && (
         <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-2xl text-sm text-amber-700">
           <LockClosedIcon className="w-4 h-4 shrink-0" />
@@ -258,78 +247,57 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
         </div>
       )}
 
-      {/* Page tabs — Menu | My Orders (only for logged-in customers, per diagram) */}
+      {/* Page tabs */}
       {isLoggedIn && (
         <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
           {([
-            { id: "menu" as PageTab,   label: "Menu",      icon: <Squares2X2Icon className="w-4 h-4" /> },
+            { id: "menu"   as PageTab, label: "Menu",      icon: <Squares2X2Icon className="w-4 h-4" /> },
             { id: "orders" as PageTab, label: "My Orders", icon: <ListBulletIcon className="w-4 h-4" /> },
           ]).map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
               className={cn(
                 "flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all",
-                activeTab === t.id
-                  ? "bg-white text-brand shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
+                activeTab === t.id ? "bg-white text-brand shadow-sm" : "text-muted-foreground hover:text-foreground"
+              )}>
               {t.icon}{t.label}
             </button>
           ))}
         </div>
       )}
 
-      {/* ── Order History tab (logged-in only, most recent → oldest) ── */}
-      {activeTab === "orders" && isLoggedIn && (
-        <OrderHistory onReorder={onOpenCart} />
-      )}
+      {/* Order History tab */}
+      {activeTab === "orders" && isLoggedIn && <OrderHistory onReorder={onOpenCart} />}
 
-      {/* ── Menu tab ── */}
+      {/* Menu tab */}
       {activeTab === "menu" && (
         <>
           {/* Search */}
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand" />
-            <Input
-              placeholder="Search dishes, ingredients..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-10 h-11 rounded-2xl"
-            />
+            <Input placeholder="Search dishes..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-10 h-11 rounded-2xl" />
             {query && (
-              <button onClick={() => setQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <button onClick={() => setQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                 <XCircleIcon className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Category filter — hero icons instead of emojis */}
+          {/* Category filter */}
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            <button
-              onClick={() => setCat("All")}
+            <button onClick={() => setCat("All")}
               className={cn(
                 "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border",
-                cat === "All"
-                  ? "bg-brand text-white border-brand shadow-sm"
-                  : "bg-white text-foreground border-border hover:border-brand/30"
-              )}
-            >
-              <Squares2X2Icon className="w-4 h-4" />
-              All
+                cat === "All" ? "bg-brand text-white border-brand shadow-sm" : "bg-white text-foreground border-border hover:border-brand/30"
+              )}>
+              <Squares2X2Icon className="w-4 h-4" /> All
             </button>
             {CATEGORIES.map((c) => (
               <button key={c} onClick={() => setCat(c)}
                 className={cn(
                   "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all border",
-                  cat === c
-                    ? "bg-brand text-white border-brand shadow-sm"
-                    : "bg-white text-foreground border-border hover:border-brand/30"
+                  cat === c ? "bg-brand text-white border-brand shadow-sm" : "bg-white text-foreground border-border hover:border-brand/30"
                 )}>
-                {CAT_ICON[c]}
-                {c}
+                {CAT_ICON[c]}{c}
               </button>
             ))}
           </div>
@@ -337,7 +305,6 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
           {/* Error */}
           {menuError && (
             <div className="flex items-center gap-3 p-4 bg-destructive/5 border border-destructive/20 rounded-2xl text-sm text-destructive">
-              <ExclamationTriangleIcon className="w-5 h-5 shrink-0" />
               Failed to load menu: {menuError}
             </div>
           )}
@@ -348,8 +315,8 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
               {CATEGORIES.slice(0, 2).map((c) => (
                 <section key={c}>
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="h-5 w-5 bg-muted rounded animate-pulse" />
-                    <div className="h-4 bg-muted rounded w-24 animate-pulse" />
+                    <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+                    <div className="h-4 bg-muted rounded w-28 animate-pulse" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[1, 2, 3].map((n) => <SkeletonCard key={n} />)}
@@ -366,7 +333,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
             </p>
           )}
 
-          {/* Grouped menu — hero icons in section headers */}
+          {/* Menu grouped by category */}
           {!menuLoading && Object.entries(grouped).map(([category, items]) => (
             <section key={category}>
               <div className="flex items-center gap-2 mb-3">
@@ -375,9 +342,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
                 <span className="text-xs text-muted-foreground">({items!.length})</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items!.map((item) => (
-                  <MenuItemCard key={item.id} item={item} onGuestClick={showGuestBanner} />
-                ))}
+                {items!.map((item) => <MenuItemCard key={item.id} item={item} onGuestClick={showGuestBanner} />)}
               </div>
             </section>
           ))}
@@ -390,9 +355,7 @@ export default function CustomerMenu({ onOpenCart }: { onOpenCart: () => void })
                 {menuItems.length === 0 ? "No menu items yet" : "No items found"}
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                {menuItems.length === 0
-                  ? "Add items from the Owner Dashboard"
-                  : "Try a different search or category"}
+                {menuItems.length === 0 ? "Add items from the Owner Dashboard" : "Try a different search or category"}
               </p>
             </div>
           )}

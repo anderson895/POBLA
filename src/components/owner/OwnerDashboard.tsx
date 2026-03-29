@@ -62,12 +62,12 @@ import {
 } from "@heroicons/react/24/outline";
 
 const CATEGORIES: MenuCategory[] = [
-  "Appetizers",
-  "Main Course",
-  "Desserts",
-  "Beverages",
-  "Sides",
-  "Specials",
+  "Rice Meals",
+  "Ala Carte",
+  "Pobla Specials",
+  "Burgers",
+  "Sandwiches",
+  "Chillers",
 ];
 
 // ─── Menu Management ──────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ function MenuManagement() {
       name: "",
       description: "",
       price: 0,
-      category: "Main Course",
+      category: "Rice Meals",
       available: true,
       preparationTime: 15,
       tags: [],
@@ -129,7 +129,7 @@ function MenuManagement() {
           name: editItem.name!,
           description: editItem.description || "",
           price: editItem.price!,
-          category: editItem.category || "Main Course",
+          category: editItem.category || "Rice Meals",
           available: editItem.available ?? true,
           preparationTime: editItem.preparationTime || 15,
           tags: editItem.tags || [],

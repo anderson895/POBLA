@@ -1,12 +1,12 @@
 export type UserRole = "customer" | "kitchen" | "delivery" | "owner" | "staff" | "manager";
 
 export type MenuCategory =
-  | "Appetizers"
-  | "Main Course"
-  | "Desserts"
-  | "Beverages"
-  | "Sides"
-  | "Specials";
+  | "Rice Meals"
+  | "Ala Carte"
+  | "Pobla Specials"
+  | "Burgers"
+  | "Sandwiches"
+  | "Chillers";
 
 export interface MenuItem {
   id: string;
@@ -17,8 +17,8 @@ export interface MenuItem {
   available: boolean;
   preparationTime: number;
   tags: string[];
-  imageUrl?: string;       // Cloudinary secure_url
-  imagePublicId?: string;  // Cloudinary public_id
+  imageUrl?: string;
+  imagePublicId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
