@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AppProvider, useApp } from "@/context/AppContext";
 import Navbar from "@/components/shared/Navbar";
-import AuthPage from "@/components/auth/AuthPage";
+import LoginPage from "@/components/auth/LoginPage";
+import SignupPage from "@/components/auth/SignupPage";
+import RiderRegistrationPage from "@/components/auth/RiderRegistrationPage";
 import CustomerMenu from "@/components/customer/CustomerMenu";
 import CartSidebar from "@/components/customer/CartSidebar";
 import KitchenDashboard from "@/components/kitchen/KitchenDashboard";
@@ -60,11 +62,19 @@ function PendingApprovalPage() {
   );
 }
 
+type AuthPage = "login" | "signup" | "rider";
+
 function AppContent() {
   const { user, userRole, isGuest, authLoading } = useAuth();
   const { dispatch } = useApp();
-  const [cartOpen, setCartOpen]   = useState(false);
-  const [authOpen, setAuthOpen]   = useState(false);
+  const [cartOpen, setCartOpen]       = useState(false);
+  const [authOpen, setAuthOpen]       = useState(false);
+  const [authPage, setAuthPage]       = useState<AuthPage>("login");
+
+  function openAuth(page: AuthPage = "login") {
+    setAuthPage(page);
+    setAuthOpen(true);
+  }
 
   // Sync Firestore role → AppContext
   useEffect(() => {
@@ -78,13 +88,31 @@ function AppContent() {
   if (userRole === "rejected" as any) return <RejectedPage />;
 
   // Not logged in — show CustomerMenu as default landing page
-  // AuthPage appears as an overlay when login button is clicked
+  // Auth pages appear as overlays when login button is clicked
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar onCartClick={() => {}} onLoginClick={() => setAuthOpen(true)} />
+        <Navbar onCartClick={() => {}} onLoginClick={() => openAuth("login")} />
         <main><CustomerMenu onOpenCart={() => {}} /></main>
-        {authOpen && <AuthPage onClose={() => setAuthOpen(false)} />}
+        {authOpen && authPage === "login" && (
+          <LoginPage
+            onClose={() => setAuthOpen(false)}
+            onNavigateSignup={() => setAuthPage("signup")}
+            onNavigateRider={() => setAuthPage("rider")}
+          />
+        )}
+        {authOpen && authPage === "signup" && (
+          <SignupPage
+            onNavigateLogin={() => setAuthPage("login")}
+            onNavigateRider={() => setAuthPage("rider")}
+          />
+        )}
+        {authOpen && authPage === "rider" && (
+          <RiderRegistrationPage
+            onNavigateLogin={() => setAuthPage("login")}
+            onNavigateSignup={() => setAuthPage("signup")}
+          />
+        )}
       </div>
     );
   }
