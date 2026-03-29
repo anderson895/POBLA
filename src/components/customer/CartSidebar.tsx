@@ -54,9 +54,9 @@ function StepBar({ step }: { step: Step }) {
 
 const PAY_OPTIONS: { id: PaymentMethod; label: string; desc: string; icon: React.ReactNode }[] = [
   { id:"cash",  label:"Cash on Delivery", desc:"Pay when your order arrives",     icon:<BanknotesIcon className="w-5 h-5" /> },
-  { id:"gcash", label:"GCash",            desc:"Pay via GCash e-wallet",           icon:<span className="font-display font-black text-lg">G</span> },
-  { id:"maya",  label:"Maya",             desc:"Pay via Maya e-wallet",            icon:<span className="font-display font-black text-lg">M</span> },
-  { id:"card",  label:"Credit/Debit",     desc:"Visa, Mastercard, etc.",           icon:<CreditCardIcon className="w-5 h-5" /> },
+  // { id:"gcash", label:"GCash",            desc:"Pay via GCash e-wallet",           icon:<span className="font-display font-black text-lg">G</span> },
+  // { id:"maya",  label:"Maya",             desc:"Pay via Maya e-wallet",            icon:<span className="font-display font-black text-lg">M</span> },
+  // { id:"card",  label:"Credit/Debit",     desc:"Visa, Mastercard, etc.",           icon:<CreditCardIcon className="w-5 h-5" /> },
 ];
 
 // Per-item note editor
