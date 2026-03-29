@@ -71,6 +71,11 @@ function AppContent() {
   const [authOpen, setAuthOpen]       = useState(false);
   const [authPage, setAuthPage]       = useState<AuthPage>("login");
 
+  // Auto-close auth overlay once user is logged in
+  useEffect(() => {
+    if (user && authOpen) setAuthOpen(false);
+  }, [user]);
+
   function openAuth(page: AuthPage = "login") {
     setAuthPage(page);
     setAuthOpen(true);

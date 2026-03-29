@@ -57,10 +57,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(email: string, password: string) {
-    const u = await loginWithEmail(email, password);
-    const role = await ensureUserProfile(u);
-    setUserRole(role);
-    setIsGuest(false);
+    // Just fire the login — onAuthStateChanged will handle setUser, setUserRole, setIsGuest.
+    // Avoid duplicate ensureUserProfile calls that cause a race condition where
+    // userRole briefly becomes null between the two competing setState calls,
+    // preventing the LoginPage overlay from closing.
+    await loginWithEmail(email, password);
   }
 
   async function register(name: string, email: string, password: string) {
@@ -68,8 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // onAuthStateChanged fires after createUser, potentially before setDoc finishes.
     // getUserRole now retries, so the listener will resolve correctly.
     await registerWithEmail(name, email, password);
-    setUserRole("customer");
-    setIsGuest(false);
   }
 
   async function logout() {
