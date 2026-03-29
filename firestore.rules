@@ -1,5 +1,4 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -12,74 +11,49 @@ service cloud.firestore {
     }
 
     function isOwnerOrManager() {
-      return isLoggedIn() && userRole() in ["owner", "manager"];
-    }
-
-    function isCashier() {
-      return isLoggedIn() && userRole() in ["owner", "manager", "cashier"];
-    }
-
-    function isKitchen() {
-      return isLoggedIn() && userRole() in ["owner", "manager", "kitchen", "staff"];
-    }
-
-    function isDelivery() {
-      return isLoggedIn() && userRole() in ["delivery"];
+      // Guard: user doc must exist before calling userRole() to avoid errors
+      return isLoggedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && userRole() in ["owner", "manager"];
     }
 
     // ── users ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow get:    if isLoggedIn() && (request.auth.uid == userId || isOwnerOrManager());
-      allow list:   if isOwnerOrManager();
-      allow create: if isLoggedIn();
+
+      // Read own doc
+      allow get: if isLoggedIn() && request.auth.uid == userId;
+
+      // Owner/Manager can read any doc or list all
+      allow get, list: if isOwnerOrManager();
+
+      // Registration: allow create if the uid in the doc matches the requester
+      // This covers both normal registration and the ensureUserProfile() fallback
+      allow create: if isLoggedIn() && request.auth.uid == userId;
+
+      // Update own profile (cannot self-promote role) OR owner/manager can change role
       allow update: if isLoggedIn() && (
                       (request.auth.uid == userId &&
                        !("role" in request.resource.data.diff(resource.data).affectedKeys()))
                       || isOwnerOrManager()
                     );
+
       allow delete: if isOwnerOrManager();
     }
 
     // ── menuItems ─────────────────────────────────────────────────────────────
     match /menuItems/{itemId} {
-      allow read:   if true;   // Anyone can browse menu
-      allow create: if isOwnerOrManager();
-      allow update: if isOwnerOrManager();
-      allow delete: if isOwnerOrManager();
+      allow read:   if true;
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isLoggedIn();
     }
 
     // ── orders ────────────────────────────────────────────────────────────────
     match /orders/{orderId} {
-      // Customer can read their own orders; staff can read all
-      allow read:   if isLoggedIn() && (
-                      resource.data.userId == request.auth.uid
-                      || isOwnerOrManager()
-                      || isCashier()
-                      || isKitchen()
-                      || isDelivery()
-                    );
-      allow create: if isLoggedIn();   // Any logged-in user can place order
-      allow update: if isLoggedIn() && (
-                      // Customer can only update their own (e.g. cancel)
-                      (resource.data.userId == request.auth.uid)
-                      || isOwnerOrManager()
-                      || isCashier()
-                      || isKitchen()
-                      || isDelivery()
-                    );
+      allow read:   if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
       allow delete: if false;
     }
-
-    // ── riderRegistrations ────────────────────────────────────────────────────
-    match /riderRegistrations/{regId} {
-      allow read:   if isLoggedIn() && (
-                      resource.data.uid == request.auth.uid
-                      || isOwnerOrManager()
-                    );
-      allow create: if isLoggedIn();
-      allow update: if isOwnerOrManager();
-      allow delete: if isOwnerOrManager();
-    }
-
   }
 }

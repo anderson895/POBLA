@@ -11,7 +11,7 @@ import {
   loginWithEmail,
   registerWithEmail,
   logoutUser,
-  getUserRole,
+  ensureUserProfile,
   type User,
   type AppRole,
 } from "@/lib/authService";
@@ -41,9 +41,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(u);
       if (u) {
         setIsGuest(false);
-        // Fetch role from Firestore on every auth state change
-        const role = await getUserRole(u.uid);
-        setUserRole(role);
+        try {
+          // ensureUserProfile creates the Firestore doc if missing (race condition fix)
+          const role = await ensureUserProfile(u);
+          setUserRole(role);
+        } catch {
+          setUserRole("customer");
+        }
       } else {
         setUserRole(null);
       }
@@ -54,12 +58,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     const u = await loginWithEmail(email, password);
-    const role = await getUserRole(u.uid);
+    const role = await ensureUserProfile(u);
     setUserRole(role);
     setIsGuest(false);
   }
 
   async function register(name: string, email: string, password: string) {
+    // registerWithEmail does: createUser → updateProfile → setDoc (in order)
+    // onAuthStateChanged fires after createUser, potentially before setDoc finishes.
+    // getUserRole now retries, so the listener will resolve correctly.
     await registerWithEmail(name, email, password);
     setUserRole("customer");
     setIsGuest(false);

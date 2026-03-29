@@ -32,6 +32,9 @@ export async function submitRiderRegistration(data: {
   const cred = await createUserWithEmailAndPassword(auth, data.email, data.password);
   await updateProfile(cred.user, { displayName: data.name });
 
+  // Force token refresh so Firestore recognises the new auth session
+  await cred.user.getIdToken(true);
+
   // Create user profile doc with role = "delivery_pending"
   await setDoc(doc(db, "users", cred.user.uid), {
     uid:       cred.user.uid,
