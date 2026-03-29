@@ -11,13 +11,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const ROLE_META: Record<string, { label: string; icon: React.ReactNode }> = {
-  customer: { label:"Customer",        icon:<UserIcon className="w-4 h-4" /> },
-  kitchen:  { label:"Kitchen Staff",   icon:<FireIcon className="w-4 h-4" /> },
-  delivery: { label:"Delivery Rider",  icon:<TruckIcon className="w-4 h-4" /> },
-  owner:    { label:"Owner / Manager", icon:<ChartBarIcon className="w-4 h-4" /> },
-  manager:  { label:"Manager",         icon:<ChartBarIcon className="w-4 h-4" /> },
-  staff:    { label:"Kitchen Staff",   icon:<FireIcon className="w-4 h-4" /> },
-  cashier:  { label:"Cashier / POS",   icon:<ReceiptPercentIcon className="w-4 h-4" /> },
+  customer: { label:"Customer",          icon:<UserIcon className="w-4 h-4" /> },
+  kitchen:  { label:"Kitchen Staff",     icon:<FireIcon className="w-4 h-4" /> },
+  delivery: { label:"Delivery Rider",    icon:<TruckIcon className="w-4 h-4" /> },
+  owner:    { label:"Owner / Manager",   icon:<ChartBarIcon className="w-4 h-4" /> },
 };
 
 export default function Navbar({ onCartClick }: { onCartClick: () => void }) {

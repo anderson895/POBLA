@@ -14,7 +14,7 @@ import {
 import { auth, db } from "./firebase";
 
 export type { User };
-export type AppRole = "customer" | "kitchen" | "delivery" | "owner" | "staff" | "manager";
+export type AppRole = "customer" | "kitchen" | "delivery" | "owner";
 
 export interface UserProfile {
   uid: string;

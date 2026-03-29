@@ -2,10 +2,7 @@ export type UserRole =
   | "customer"
   | "kitchen"
   | "delivery"
-  | "owner"
-  | "staff"
-  | "manager"
-  | "cashier";
+  | "owner";
 
 export type MenuCategory =
   | "Rice Meals"

@@ -757,7 +757,7 @@ function Reports() {
 
 // ─── Add User Dialog ─────────────────────────────────────────────────────────
 
-const STAFF_ROLES: AppRole[] = ["staff", "kitchen", "delivery", "owner"];
+const STAFF_ROLES: AppRole[] = ["kitchen", "delivery", "owner"];
 
 interface AddUserDialogProps {
   open: boolean;
@@ -769,13 +769,13 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
   const [name, setName]       = useState("");
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole]       = useState<AppRole>("staff");
+  const [role, setRole]       = useState<AppRole>("kitchen");
   const [error, setError]     = useState<string | null>(null);
   const [saving, setSaving]   = useState(false);
   const [showPass, setShowPass] = useState(false);
 
   function reset() {
-    setName(""); setEmail(""); setPassword(""); setRole("staff");
+    setName(""); setEmail(""); setPassword(""); setRole("kitchen");
     setError(null); setSaving(false);
   }
 
@@ -898,8 +898,6 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         "w-2 h-2 rounded-full inline-block",
-                        r === "staff"    ? "bg-yellow-400" :
-                        r === "manager"  ? "bg-pink-400" :
                         r === "kitchen"  ? "bg-orange-400" :
                         r === "delivery" ? "bg-green-400" :
                         "bg-purple-400"
@@ -952,8 +950,6 @@ const ROLE_LABELS: Record<AppRole, string> = {
   kitchen:  "Kitchen Staff",
   delivery: "Delivery Rider",
   owner:    "Owner / Manager",
-  staff:    "Staff",
-  manager:  "Manager",
 };
 
 const ROLE_COLORS: Record<AppRole, string> = {
@@ -961,8 +957,6 @@ const ROLE_COLORS: Record<AppRole, string> = {
   kitchen:  "bg-orange-100 text-orange-700 border-orange-200",
   delivery: "bg-green-100 text-green-700 border-green-200",
   owner:    "bg-purple-100 text-purple-700 border-purple-200",
-  staff:    "bg-yellow-100 text-yellow-700 border-yellow-200",
-  manager:  "bg-pink-100 text-pink-700 border-pink-200",
 };
 
 function UserManagement() {
@@ -1041,8 +1035,6 @@ function UserManagement() {
     kitchen:  users.filter((u) => u.role === "kitchen").length,
     delivery: users.filter((u) => u.role === "delivery").length,
     owner:    users.filter((u) => u.role === "owner").length,
-    staff:    users.filter((u) => u.role === "staff").length,
-    manager:  users.filter((u) => u.role === "manager").length,
   }), [users]);
 
   return (
@@ -1063,7 +1055,7 @@ function UserManagement() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {(["customer","kitchen","delivery","owner","staff","manager"] as AppRole[]).map((r) => (
+        {(["customer","kitchen","delivery","owner"] as AppRole[]).map((r) => (
           <button
             key={r}
             onClick={() => setFilterRole(filterRole === r ? "all" : r)}

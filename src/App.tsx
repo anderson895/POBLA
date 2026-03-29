@@ -8,7 +8,6 @@ import CartSidebar from "@/components/customer/CartSidebar";
 import KitchenDashboard from "@/components/kitchen/KitchenDashboard";
 import DeliveryDashboard from "@/components/delivery/DeliveryDashboard";
 import OwnerDashboard from "@/components/owner/OwnerDashboard";
-import CashierDashboard from "@/components/cashier/CashierDashboard";
 
 function AuthLoading() {
   return (
@@ -90,16 +89,12 @@ function AppContent() {
 
   const role = userRole ?? "customer";
 
-  // Diagram 1: Cashier role handles pending orders confirmation
-  // Diagram 3: Delivery role handles rider flow
+  // 4 roles: customer, kitchen, delivery, owner
   const pages: Record<string, React.ReactNode> = {
     customer: <CustomerMenu onOpenCart={() => setCartOpen(true)} />,
     kitchen:  <KitchenDashboard />,
     delivery: <DeliveryDashboard />,
     owner:    <OwnerDashboard />,
-    manager:  <OwnerDashboard />,
-    staff:    <KitchenDashboard />,
-    cashier:  <CashierDashboard />,
   };
 
   return (
