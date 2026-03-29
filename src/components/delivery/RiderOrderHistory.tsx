@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { Order } from "@/types";
 import { useAuth } from "@/context/AuthContext";
-import { subscribeToUserOrders } from "@/lib/orderService";
+import { subscribeToRiderHistory } from "@/lib/orderService";
 import { formatCurrency, ORDER_STATUS_LABEL, ORDER_STATUS_CLASS, formatDate, cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,17 +34,13 @@ export default function RiderOrderHistory() {
   useEffect(() => {
     if (!riderId) return;
     setLoading(true);
-    // Reuse subscribeToUserOrders but filter by assignedRiderId on client side
-    return subscribeToUserOrders(riderId, (all) => {
-      // subscribeToUserOrders queries by userId — for rider we need assignedRiderId
-      // so we subscribe to all rider's completed orders via the existing hook
+    return subscribeToRiderHistory(riderId, (all) => {
       setOrders(all);
       setLoading(false);
     }, () => setLoading(false));
   }, [riderId]);
 
-  // Filter only orders assigned to this rider
-  const riderOrders = orders.filter(o => o.assignedRiderId === riderId);
+  const riderOrders = orders; // already filtered by assignedRiderId in Firestore query
 
   const filtered = riderOrders.filter(o => {
     const matchStatus = filter === "all" || o.status === filter;

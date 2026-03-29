@@ -180,6 +180,24 @@ export function subscribeToUserOrders(
   }, err => { console.error("[orderService]", err); onError?.(err); });
 }
 
+/** Rider: all orders ever assigned to this rider (by assignedRiderId) */
+export function subscribeToRiderHistory(
+  riderId: string,
+  callback: (orders: Order[]) => void,
+  onError?: (err: Error) => void
+): () => void {
+  const q = query(
+    collection(db, COL),
+    where("assignedRiderId", "==", riderId)
+  );
+  return onSnapshot(q, snap => {
+    const orders = snap.docs
+      .map(d => toOrder(d.id, d.data() as Record<string, unknown>))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    callback(orders);
+  }, err => { console.error("[orderService]", err); onError?.(err); });
+}
+
 /** Owner: all orders */
 export function subscribeToAllOrders(
   callback: (orders: Order[]) => void,
