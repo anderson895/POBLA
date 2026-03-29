@@ -11,7 +11,6 @@ service cloud.firestore {
     }
 
     function isOwnerOrManager() {
-      // Guard: user doc must exist before calling userRole() to avoid errors
       return isLoggedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && userRole() in ["owner", "manager"];
@@ -26,16 +25,38 @@ service cloud.firestore {
       // Owner/Manager can read any doc or list all
       allow get, list: if isOwnerOrManager();
 
-      // Registration: allow create if the uid in the doc matches the requester
-      // This covers both normal registration and the ensureUserProfile() fallback
-      allow create: if isLoggedIn() && request.auth.uid == userId;
+      // Create: own doc (normal sign-up, ensureUserProfile, rider registration)
+      // OR owner/manager creating a staff account
+      allow create: if isLoggedIn() && (
+                      request.auth.uid == userId
+                      || isOwnerOrManager()
+                    );
 
-      // Update own profile (cannot self-promote role) OR owner/manager can change role
+      // Update own profile (cannot self-promote role) OR owner/manager can change any role
       allow update: if isLoggedIn() && (
                       (request.auth.uid == userId &&
                        !("role" in request.resource.data.diff(resource.data).affectedKeys()))
                       || isOwnerOrManager()
                     );
+
+      allow delete: if isOwnerOrManager();
+    }
+
+    // ── riderRegistrations ────────────────────────────────────────────────────
+    match /riderRegistrations/{regId} {
+
+      // Rider can create their own registration
+      allow create: if isLoggedIn();
+
+      // Rider can read their own registration; owner/manager can read all
+      allow get: if isLoggedIn() && (
+                   resource.data.uid == request.auth.uid
+                   || isOwnerOrManager()
+                 );
+      allow list: if isOwnerOrManager();
+
+      // Only owner/manager can update (approve/reject)
+      allow update: if isOwnerOrManager();
 
       allow delete: if isOwnerOrManager();
     }

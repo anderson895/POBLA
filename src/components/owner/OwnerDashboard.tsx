@@ -33,6 +33,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -757,7 +758,8 @@ function Reports() {
 
 // ─── Add User Dialog ─────────────────────────────────────────────────────────
 
-const STAFF_ROLES: AppRole[] = ["kitchen", "delivery", "owner"];
+// "delivery" is intentionally excluded — riders register via the Rider Registration page
+const STAFF_ROLES: AppRole[] = ["kitchen", "owner"];
 
 interface AddUserDialogProps {
   open: boolean;
@@ -790,14 +792,24 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
     }
     setSaving(true); setError(null);
     try {
-      // Create Firebase Auth account
-      const { createUserWithEmailAndPassword: createUser, updateProfile } = await import("firebase/auth");
-      const { auth: firebaseAuth } = await import("@/lib/firebase");
+      // ── IMPORTANT: Use the SECONDARY auth instance ──────────────────────────
+      // createUserWithEmailAndPassword on the MAIN auth would auto-sign-in the
+      // new user, triggering onAuthStateChanged and kicking out the owner.
+      // The secondary auth app is isolated — the owner's session is untouched.
+      const { createUserWithEmailAndPassword: createUser, updateProfile, signOut: signOutSecondary } = await import("firebase/auth");
+      const { secondaryAuth, db: firestoreDb } = await import("@/lib/firebase");
       const { doc: firestoreDoc, setDoc, serverTimestamp } = await import("firebase/firestore");
-      const { db: firestoreDb } = await import("@/lib/firebase");
 
-      const cred = await createUser(firebaseAuth, email.trim(), password);
+      // Step 1: Create Firebase Auth account via secondary app (won't affect owner session)
+      const cred = await createUser(secondaryAuth, email.trim(), password);
       await updateProfile(cred.user, { displayName: name.trim() });
+
+      // Step 2: Sign out of secondary FIRST — then the OWNER (main auth) writes the
+      // Firestore doc. This satisfies the rule: isOwnerOrManager() uses request.auth
+      // from the main session, not the secondary one.
+      await signOutSecondary(secondaryAuth);
+
+      // Step 3: Owner writes the Firestore profile doc (allowed by isOwnerOrManager() rule)
       await setDoc(firestoreDoc(firestoreDb, "users", cred.user.uid), {
         uid:       cred.user.uid,
         name:      name.trim(),
@@ -815,12 +827,16 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
       handleClose();
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
+      const msg  = (err as { message?: string }).message ?? "";
       const map: Record<string, string> = {
         "auth/email-already-in-use": "Email already in use.",
         "auth/invalid-email":        "Invalid email address.",
         "auth/weak-password":        "Password is too weak.",
+        "auth/network-request-failed": "Network error. Check your connection.",
       };
-      setError(map[code] ?? "Something went wrong. Please try again.");
+      // Show the mapped message, or fall back to the actual Firebase error message
+      // so it's easier to debug instead of a generic "Something went wrong".
+      setError(map[code] ?? msg ?? "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -834,6 +850,9 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
             <UserCircleIcon className="w-5 h-5 text-brand" />
           Add Staff / Manager
           </DialogTitle>
+          <DialogDescription>
+            Create a new Kitchen Staff or Owner account. Riders should register via the Rider Registration page.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           {error && (
@@ -898,9 +917,7 @@ function AddUserDialog({ open, onClose, onSuccess }: AddUserDialogProps) {
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         "w-2 h-2 rounded-full inline-block",
-                        r === "kitchen"  ? "bg-orange-400" :
-                        r === "delivery" ? "bg-green-400" :
-                        "bg-purple-400"
+                        r === "kitchen" ? "bg-orange-400" : "bg-purple-400"
                       )} />
                       {ROLE_LABELS[r]}
                     </div>
@@ -1192,6 +1209,9 @@ function UserManagement() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove User</DialogTitle>
+            <DialogDescription>
+              This action removes the user's profile from the system.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">

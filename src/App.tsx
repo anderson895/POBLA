@@ -84,8 +84,8 @@ function AppContent() {
   if (authLoading) return <AuthLoading />;
 
   // Handle special pending/rejected states
-  if (userRole === "delivery_pending" as any) return <PendingApprovalPage />;
-  if (userRole === "rejected" as any) return <RejectedPage />;
+  if (userRole === "delivery_pending") return <PendingApprovalPage />;
+  if (userRole === "rejected") return <RejectedPage />;
 
   // Not logged in — show CustomerMenu as default landing page
   // Auth pages appear as overlays when login button is clicked
