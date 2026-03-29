@@ -17,7 +17,7 @@ const ROLE_META: Record<string, { label: string; icon: React.ReactNode }> = {
   owner:    { label:"Owner / Manager",   icon:<ChartBarIcon className="w-4 h-4" /> },
 };
 
-export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
+export default function Navbar({ onCartClick, onLoginClick }: { onCartClick: () => void; onLoginClick?: () => void }) {
   const { state, cartItemCount } = useApp();
   const { user, userRole, isGuest, logout, exitGuest } = useAuth();
   const [userOpen, setUserOpen]       = useState(false);
@@ -75,6 +75,15 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
               </button>
             )}
 
+            {/* Not logged in — show Login button */}
+            {!user && !isGuest && (
+              <button onClick={onLoginClick}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white transition-all"
+                style={{ background: "#bc5d5d" }}>
+                Login / Sign Up
+              </button>
+            )}
+
             {/* Guest */}
             {isGuest && (
               <div className="flex items-center gap-2">
@@ -82,8 +91,8 @@ export default function Navbar({ onCartClick }: { onCartClick: () => void }) {
                   <LockClosedIcon className="w-3 h-3" /> Guest
                 </span>
                 <button onClick={exitGuest}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all"style={{ background:"rgba(188,93,93,0.8)" }}>
-                Login to Order
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all" style={{ background: "rgba(188,93,93,0.8)" }}>
+                  Login to Order
                 </button>
               </div>
             )}

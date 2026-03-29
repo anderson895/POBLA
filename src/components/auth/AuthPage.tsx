@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   EnvelopeIcon, LockClosedIcon, UserIcon, EyeIcon, EyeSlashIcon,
   ExclamationCircleIcon, ArrowRightIcon, UserGroupIcon, TruckIcon, PhoneIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 type Tab = "login" | "register" | "rider";
@@ -58,8 +59,8 @@ function firebaseError(code: string): string {
   return map[code] ?? "Something went wrong. Please try again.";
 }
 
-export default function AuthPage() {
-  const { login, register, continueAsGuest } = useAuth();
+export default function AuthPage({ onClose }: { onClose?: () => void }) {
+  const { login, register } = useAuth();
   const [tab, setTab]           = useState<Tab>("login");
   const [name, setName]         = useState("");
   const [email, setEmail]       = useState("");
@@ -111,7 +112,14 @@ export default function AuthPage() {
   function switchTab(t: Tab) { setTab(t); setError(null); setSuccess(null); }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8" style={{ background:"#3b3130" }}>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center px-4 py-8" style={{ background:"rgba(59,49,48,0.97)" }}>
+      {/* Close button — only when used as overlay */}
+      {onClose && (
+        <button onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl text-white/40 hover:text-white/80 hover:bg-white/5 transition-all">
+          <XMarkIcon className="w-5 h-5" />
+        </button>
+      )}
       <div className="fixed -top-32 -left-32 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none" style={{ background:"#bc5d5d" }} />
       <div className="fixed -bottom-32 -right-32 w-96 h-96 rounded-full opacity-10 blur-3xl pointer-events-none" style={{ background:"#bc5d5d" }} />
 
@@ -239,11 +247,11 @@ export default function AuthPage() {
         </div>
 
         <div className="px-6 pb-8">
-          <button onClick={continueAsGuest}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white/80 transition-all"style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)" }}>
+          <button onClick={onClose}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white/80 transition-all" style={{ background:"rgba(255,255,255,0.05)", border:"1px solid rgba(255,255,255,0.08)" }}>
             <UserGroupIcon className="w-4 h-4" />
-          Continue as Guest
-            <span className="text-[10px] text-white/30">(browse only)</span>
+            Browse Menu as Guest
+            <span className="text-[10px] text-white/30">(no ordering)</span>
           </button>
         </div>
       </div>

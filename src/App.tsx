@@ -63,7 +63,8 @@ function PendingApprovalPage() {
 function AppContent() {
   const { user, userRole, isGuest, authLoading } = useAuth();
   const { dispatch } = useApp();
-  const [cartOpen, setCartOpen] = useState(false);
+  const [cartOpen, setCartOpen]   = useState(false);
+  const [authOpen, setAuthOpen]   = useState(false);
 
   // Sync Firestore role → AppContext
   useEffect(() => {
@@ -71,18 +72,19 @@ function AppContent() {
   }, [userRole, dispatch]);
 
   if (authLoading) return <AuthLoading />;
-  if (!user && !isGuest) return <AuthPage />;
 
   // Handle special pending/rejected states
   if (userRole === "delivery_pending" as any) return <PendingApprovalPage />;
   if (userRole === "rejected" as any) return <RejectedPage />;
 
-  // Guest — browse menu only (Diagram 4)
-  if (isGuest && !user) {
+  // Not logged in — show CustomerMenu as default landing page
+  // AuthPage appears as an overlay when login button is clicked
+  if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar onCartClick={() => {}} />
+        <Navbar onCartClick={() => {}} onLoginClick={() => setAuthOpen(true)} />
         <main><CustomerMenu onOpenCart={() => {}} /></main>
+        {authOpen && <AuthPage onClose={() => setAuthOpen(false)} />}
       </div>
     );
   }
