@@ -15,7 +15,7 @@ import RiderOrderHistory from "./RiderOrderHistory";
 import {
   subscribeToAvailableDeliveries,
   subscribeToRiderOrders,
-  subscribeToUserOrders,
+  subscribeToRiderHistory,
   updateOrderStatus,
 } from "@/lib/orderService";
 import {
@@ -203,8 +203,8 @@ export default function DeliveryDashboard() {
   // Subscribe to rider's completed orders
   useEffect(() => {
     if (!riderId) return;
-    return subscribeToUserOrders(riderId, orders => {
-      setDone(orders.filter(o => o.status === "delivered" && o.assignedRiderId === riderId));
+    return subscribeToRiderHistory(riderId, orders => {
+      setDone(orders.filter(o => o.status === "delivered"));
     });
   }, [riderId]);
 
