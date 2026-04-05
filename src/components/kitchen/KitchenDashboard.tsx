@@ -174,10 +174,15 @@ function KitchenCard({ order, onStatus }: {
             <CheckCircleIcon className="w-3.5 h-3.5" /> Mark Ready
           </Button>
         )}
-        {isReady && (
+        {isReady && order.orderType === "delivery" && (
           <div className="w-full py-2 rounded-xl text-sm font-semibold text-center bg-green-50 text-green-700 border border-green-200">
-            Ready — {order.orderType === "delivery" ? "Awaiting rider" : "Awaiting customer"}
+            Ready — Awaiting rider
           </div>
+        )}
+        {isReady && order.orderType === "pickup" && (
+          <Button variant="default" className="w-full" size="sm" onClick={() => onStatus(order.id, "completed")}>
+            <CheckCircleIcon className="w-3.5 h-3.5" /> Customer Picked Up
+          </Button>
         )}
       </CardContent>
     </Card>
